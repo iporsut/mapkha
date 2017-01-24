@@ -9,10 +9,3 @@ const (
 	LATIN       = 4
 	SPACE       = 5
 )
-
-type Policy int
-
-const (
-	LEFT  Policy = 1
-	RIGHT        = 2
-)

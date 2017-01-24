@@ -2,6 +2,9 @@ package mapkha
 
 import (
 	"bufio"
+	"bytes"
+	"io/ioutil"
+	"log"
 	"os"
 	"path"
 	"runtime"
@@ -19,8 +22,12 @@ func LoadDict(path string) (*Dict, error) {
 		return nil, err
 	}
 	defer f.Close()
+	b, err := ioutil.ReadAll(f)
+	if err != nil {
+		log.Fatal("could not read input:", err)
+	}
+	scanner := bufio.NewScanner(bytes.NewReader(b))
 	wordWithPayloads := make([]WordWithPayload, 0)
-	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
 		if line := scanner.Text(); len(line) != 0 {
 			wordWithPayloads = append(wordWithPayloads,
