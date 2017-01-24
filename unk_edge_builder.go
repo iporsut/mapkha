@@ -4,7 +4,7 @@ type UnkEdgeBuilder struct {
 }
 
 // Build - build dummy edge when there is no edge created.
-func (builder *UnkEdgeBuilder) Build(context *EdgeBuildingContext) (edge Edge, ok bool) {
+func (builder *UnkEdgeBuilder) Build() (edge Edge, ok bool) {
 	if context.Found {
 		return
 	}

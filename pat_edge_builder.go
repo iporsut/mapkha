@@ -10,7 +10,7 @@ type PatEdgeBuilder struct {
 	edgeType Etype
 }
 
-func (builder *PatEdgeBuilder) Build(context *EdgeBuildingContext) (edge Edge, ok bool) {
+func (builder *PatEdgeBuilder) Build() (edge Edge, ok bool) {
 	if !builder.foundS {
 		if builder.isPat(context.Ch) {
 			builder.s = context.I

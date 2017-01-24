@@ -17,7 +17,7 @@ func NewDictEdgeBuilder(dict PrefixTree) *DictEdgeBuilder {
 }
 
 // Build - build new edge from dictionary
-func (builder *DictEdgeBuilder) Build(context *EdgeBuildingContext) (edge Edge, ok bool) {
+func (builder *DictEdgeBuilder) Build() (edge Edge, ok bool) {
 	if isSpace(context.Ch) || isLatin(context.Ch) {
 		return
 	}
