@@ -1,8 +1,8 @@
 package mapkha
 
 type DictEdgeBuilder struct {
-	dict     *Dict
-	pointers []*dictBuilderPointer
+	dict     PrefixTree
+	pointers []dictBuilderPointer
 }
 
 type dictBuilderPointer struct {
@@ -12,33 +12,30 @@ type dictBuilderPointer struct {
 	IsFinal bool
 }
 
-func NewDictEdgeBuilder(dict *Dict) *DictEdgeBuilder {
-	return &DictEdgeBuilder{dict, make([]*dictBuilderPointer, 0, 20)}
-}
-
-func (builder *DictEdgeBuilder) updatePointer(pointer *dictBuilderPointer, ch rune) *dictBuilderPointer {
-	childNode, found := builder.dict.Lookup(pointer.NodeID, pointer.Offset, ch)
-	if !found {
-		return nil
-	}
-	pointer.NodeID = childNode.ChildID
-	pointer.Offset += 1
-	pointer.NodeID = childNode.ChildID
-	pointer.IsFinal = childNode.IsFinal
-	return pointer
+func NewDictEdgeBuilder(dict PrefixTree) *DictEdgeBuilder {
+	return &DictEdgeBuilder{dict: dict}
 }
 
 // Build - build new edge from dictionary
 func (builder *DictEdgeBuilder) Build(context *EdgeBuildingContext) *Edge {
-	builder.pointers = append(builder.pointers, &dictBuilderPointer{S: context.I})
+	if isSpace(context.Ch) || isLatin(context.Ch) {
+		return nil
+	}
+
+	builder.pointers = append(builder.pointers, dictBuilderPointer{S: context.I})
 
 	newIndex := 0
 	for i, _ := range builder.pointers {
-		newPointer := builder.updatePointer(builder.pointers[i], context.Ch)
-		if newPointer != nil {
-			builder.pointers[newIndex] = newPointer
-			newIndex++
+		p := builder.pointers[i]
+		childNode, found := builder.dict[PrefixTreeNode{p.NodeID, p.Offset, context.Ch}]
+		if !found {
+			continue
 		}
+		p.Offset++
+		p.NodeID = childNode.ChildID
+		p.IsFinal = childNode.IsFinal
+		builder.pointers[newIndex] = p
+		newIndex++
 	}
 
 	builder.pointers = builder.pointers[:newIndex]

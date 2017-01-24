@@ -6,34 +6,42 @@ type Wordcut struct {
 	edgeBuilders []EdgeBuilder
 }
 
-func NewWordcut(dict *Dict) *Wordcut {
+func isSpace(ch rune) bool {
+	return ch == ' ' ||
+		ch == '\n' ||
+		ch == '\t' ||
+		ch == '"' ||
+		ch == '(' ||
+		ch == ')' ||
+		ch == '“' ||
+		ch == '”'
+}
+
+func isLatin(ch rune) bool {
+
+	return (ch >= 'A' && ch <= 'Z') ||
+		(ch >= 'a' && ch <= 'z')
+
+}
+
+func NewWordcut(dict PrefixTree) *Wordcut {
 	factories := []edgeBuilderFactory{
-		func() EdgeBuilder {
-			return NewDictEdgeBuilder(dict)
-		},
 		func() EdgeBuilder {
 			return &PatEdgeBuilder{foundS: false,
 				foundE:   false,
 				edgeType: SPACE,
-				isPat: func(ch rune) bool {
-					return ch == ' ' ||
-						ch == '\n' ||
-						ch == '\t' ||
-						ch == '"' ||
-						ch == '(' ||
-						ch == ')' ||
-						ch == '“' ||
-						ch == '”'
-				}}
+				isPat:    isSpace,
+			}
 		},
 		func() EdgeBuilder {
 			return &PatEdgeBuilder{foundS: false,
 				foundE:   false,
 				edgeType: LATIN,
-				isPat: func(ch rune) bool {
-					return (ch >= 'A' && ch <= 'Z') ||
-						(ch >= 'a' && ch <= 'z')
-				}}
+				isPat:    isLatin,
+			}
+		},
+		func() EdgeBuilder {
+			return NewDictEdgeBuilder(dict)
 		},
 		func() EdgeBuilder {
 			return &UnkEdgeBuilder{}
