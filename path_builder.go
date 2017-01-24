@@ -2,12 +2,13 @@ package mapkha
 
 var globalContext = &EdgeBuildingContext{}
 
-func buildPath(textRunes []rune, edgeBuilders []EdgeBuilder) []*Edge {
-	path := make([]*Edge, len(textRunes)+1)
-	path[0] = &Edge{S: 0, EdgeType: INIT, WordCount: 0, UnkCount: 0}
+func buildPath(textRunes []rune) []Edge {
+	path := make([]Edge, len(textRunes)+1)
+	path[0] = Edge{S: 0, EdgeType: INIT, WordCount: 0, UnkCount: 0}
 	leftBoundary := 0
 	for i, ch := range textRunes {
-		var bestEdge *Edge
+		var bestEdge Edge
+		var found bool
 		for _, edgeBuilder := range edgeBuilders {
 			globalContext.runes = textRunes
 			globalContext.Path = path
@@ -15,16 +16,20 @@ func buildPath(textRunes []rune, edgeBuilders []EdgeBuilder) []*Edge {
 			globalContext.Ch = ch
 			globalContext.LeftBoundary = leftBoundary
 			globalContext.BestEdge = bestEdge
+			globalContext.Found = found
 
-			edge := edgeBuilder.Build(globalContext)
-
-			if edge != nil && edge.IsBetterThan(bestEdge) {
+			edge, ok := edgeBuilder.Build(globalContext)
+			if !found && ok {
+				found = true
+				bestEdge = edge
+			} else if found && ok && edge.IsBetterThan(bestEdge) {
 				bestEdge = edge
 			}
+
 		}
 
-		if bestEdge == nil {
-			panic("bestEdge must not be nil")
+		if !found {
+			panic("bestEdge not found")
 		}
 
 		if bestEdge.EdgeType != UNK {

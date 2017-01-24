@@ -17,9 +17,9 @@ func NewDictEdgeBuilder(dict PrefixTree) *DictEdgeBuilder {
 }
 
 // Build - build new edge from dictionary
-func (builder *DictEdgeBuilder) Build(context *EdgeBuildingContext) *Edge {
+func (builder *DictEdgeBuilder) Build(context *EdgeBuildingContext) (edge Edge, ok bool) {
 	if isSpace(context.Ch) || isLatin(context.Ch) {
-		return nil
+		return
 	}
 
 	builder.pointers = append(builder.pointers, dictBuilderPointer{S: context.I})
@@ -39,24 +39,26 @@ func (builder *DictEdgeBuilder) Build(context *EdgeBuildingContext) *Edge {
 	}
 
 	builder.pointers = builder.pointers[:newIndex]
-	var bestEdge *Edge
 
 	for _, pointer := range builder.pointers {
 		if pointer.IsFinal {
 			s := 1 + context.I - pointer.Offset
 			source := context.Path[s]
-			edge := &Edge{
+			e := Edge{
 				S:         s,
 				EdgeType:  DICT,
 				WordCount: source.WordCount + 1,
 				UnkCount:  source.UnkCount}
-			if !bestEdge.IsBetterThan(edge) {
-				bestEdge = edge
+			if !ok {
+				edge = e
+				ok = true
+			} else if !edge.IsBetterThan(e) {
+				edge = e
 			}
 		}
 	}
 
-	return bestEdge
+	return
 }
 
 func (builder *DictEdgeBuilder) Reset() {

@@ -10,7 +10,7 @@ type PatEdgeBuilder struct {
 	edgeType Etype
 }
 
-func (builder *PatEdgeBuilder) Build(context *EdgeBuildingContext) *Edge {
+func (builder *PatEdgeBuilder) Build(context *EdgeBuildingContext) (edge Edge, ok bool) {
 	if !builder.foundS {
 		if builder.isPat(context.Ch) {
 			builder.s = context.I
@@ -34,12 +34,12 @@ func (builder *PatEdgeBuilder) Build(context *EdgeBuildingContext) *Edge {
 		source := context.Path[builder.s]
 		builder.foundS = false
 		builder.foundE = false
-		return &Edge{S: builder.s,
+		return Edge{S: builder.s,
 			EdgeType:  builder.edgeType,
 			WordCount: source.WordCount + 1,
-			UnkCount:  source.UnkCount}
+			UnkCount:  source.UnkCount}, true
 	}
-	return nil
+	return
 }
 
 func (builder *PatEdgeBuilder) Reset() {

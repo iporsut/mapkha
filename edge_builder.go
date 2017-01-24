@@ -4,12 +4,13 @@ type EdgeBuildingContext struct {
 	runes        []rune
 	I            int
 	Ch           rune
-	Path         []*Edge
+	Path         []Edge
 	LeftBoundary int
-	BestEdge     *Edge
+	BestEdge     Edge
+	Found        bool
 }
 
 type EdgeBuilder interface {
-	Build(*EdgeBuildingContext) *Edge
+	Build(*EdgeBuildingContext) (Edge, bool)
 	Reset()
 }
